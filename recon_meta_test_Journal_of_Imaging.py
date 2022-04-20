@@ -240,34 +240,34 @@ class Multi_modal_generator:
         z1 = input_layers1 - alpha1 * (ATAx1 - ATf1)
         u1 = z1 - tf.scalar_mul(tau1, self.grad_R1(z1, self.epsilon1))
         x1 = u1
-#        #Phi(U1)
-#        phi_x1 = 0.5*self.l2_norm_square(mriForwardOp(input_layers1, Mask)- Kspace) + self.sigma_w(self.R_epsilon1(self.g1_forward(input_layers1)[-1], self.epsilon1))
-#        phi_u1 = 0.5*self.l2_norm_square(mriForwardOp(u1, Mask)- Kspace) + self.sigma_w(self.R_epsilon1(self.g1_forward(u1)[-1], self.epsilon1))#(batch_size, )
-#        phi_u1_x1 = phi_u1 - phi_x1
-#        u1_x1  = self.l2_norm_square(u1 - input_layers1)
-#        
-#        grad_phi_x1_ =  (ATAx1 - ATf1) + self.grad_sigma_w(self.grad_R1(input_layers1, self.epsilon1))
-#        norm_grad_phi_x1_ = tf.reduce_mean(tf.sqrt(self.l2_norm_square(grad_phi_x1_)))
-#        if_choose_u1 = tf.logical_and( (norm_grad_phi_x1_ <= self.a1 * tf.sqrt(u1_x1) ) , (phi_u1_x1 <= -0.5*self.b1 * u1_x1))
-#        
-#        if if_choose_u1==True:
-#            x1 = u1
-#        else:
-#            def condition(alpha1):
-#                v1 = input_layers1 - tf.scalar_mul(alpha1,  self.grad_sigma_w(self.grad_R1(input_layers1, self.epsilon1)) )  
-#                phi_v1 = 0.5*self.l2_norm_square(mriForwardOp(v1, Mask)- Kspace) + self.sigma_w(self.R_epsilon1(self.g1_forward(v1)[-1], self.epsilon1))#(batch_size, )
-#                phi_v1_x1 = phi_v1 - phi_x1
-#                v1_x1     = self.l2_norm_square(v1 - input_layers1)
-#                return [v1, phi_v1_x1, v1_x1]
-#            
-#            [v1, phi_v1_x1, v1_x1] = condition(alpha1)
-#    
-#            if_alpha1_decrease = tf.reshape(tf.reduce_mean(phi_v1_x1) <= tf.reduce_mean( -self.c1 * v1_x1), [])
-#            #check if alpha should decrease
-#            if if_alpha1_decrease==False:
-#                alpha1  = tf.where(if_alpha1_decrease, alpha1, tf.complex(0.9*tf.real(alpha1),0.9*tf.imag(alpha1)) )
-#                [v1, phi_v1_x1, v1_x1] = condition(alpha1)
-#            x1 = u1
+        #Phi(U1)
+        phi_x1 = 0.5*self.l2_norm_square(mriForwardOp(input_layers1, Mask)- Kspace) + self.sigma_w(self.R_epsilon1(self.g1_forward(input_layers1)[-1], self.epsilon1))
+        phi_u1 = 0.5*self.l2_norm_square(mriForwardOp(u1, Mask)- Kspace) + self.sigma_w(self.R_epsilon1(self.g1_forward(u1)[-1], self.epsilon1))#(batch_size, )
+        phi_u1_x1 = phi_u1 - phi_x1
+        u1_x1  = self.l2_norm_square(u1 - input_layers1)
+        
+        grad_phi_x1_ =  (ATAx1 - ATf1) + self.grad_sigma_w(self.grad_R1(input_layers1, self.epsilon1))
+        norm_grad_phi_x1_ = tf.reduce_mean(tf.sqrt(self.l2_norm_square(grad_phi_x1_)))
+        if_choose_u1 = tf.logical_and( (norm_grad_phi_x1_ <= self.a1 * tf.sqrt(u1_x1) ) , (phi_u1_x1 <= -0.5*self.b1 * u1_x1))
+        
+        if if_choose_u1==True:
+            x1 = u1
+        else:
+            def condition(alpha1):
+                v1 = input_layers1 - tf.scalar_mul(alpha1,  self.grad_sigma_w(self.grad_R1(input_layers1, self.epsilon1)) )  
+                phi_v1 = 0.5*self.l2_norm_square(mriForwardOp(v1, Mask)- Kspace) + self.sigma_w(self.R_epsilon1(self.g1_forward(v1)[-1], self.epsilon1))#(batch_size, )
+                phi_v1_x1 = phi_v1 - phi_x1
+                v1_x1     = self.l2_norm_square(v1 - input_layers1)
+                return [v1, phi_v1_x1, v1_x1]
+            
+            [v1, phi_v1_x1, v1_x1] = condition(alpha1)
+    
+            if_alpha1_decrease = tf.reshape(tf.reduce_mean(phi_v1_x1) <= tf.reduce_mean( -self.c1 * v1_x1), [])
+            #check if alpha should decrease
+            if if_alpha1_decrease==False:
+                alpha1  = tf.where(if_alpha1_decrease, alpha1, tf.complex(0.9*tf.real(alpha1),0.9*tf.imag(alpha1)) )
+                [v1, phi_v1_x1, v1_x1] = condition(alpha1)
+            x1 = u1
 
         return [x1, alpha1, tau1]
 
