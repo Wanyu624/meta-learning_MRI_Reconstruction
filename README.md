@@ -1,4 +1,4 @@
-# meta-learning_MRI_Reconstruction
+# An Optimization-Based Meta-Learning Model for MRI Reconstruction with Diverse Dataset
 
 This Project is for published paper: 
 
